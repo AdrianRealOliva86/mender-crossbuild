@@ -4,19 +4,16 @@ TOOLCHAIN_BASE=${HOME}/x-tools/
 
 usage () {
 cat << EOF
-
 Usage: $0 -n <package-name> -p <processor> [-t <toolchain>]
-
     -n        Go package name pointing to Mender client.
     -p        Target processor the binary is built for.
     -t        Specify a toolchain (should be visible in PATH)
               which will be used to build the client binary.
-
+    -v        Version of Mender being compiled. If not set then will be unknown.
 EOF
 }
 
-while getopts ":n:p:t:" o; do
-  case "${o}" in
+while getopts ":n:p:t:v:" o; do  case "${o}" in
     n)
       package=${OPTARG}
       ;;
@@ -26,6 +23,10 @@ while getopts ":n:p:t:" o; do
     t)
       TOOLCHAIN=${OPTARG}
       echo "User specified toolchain '$TOOLCHAIN' will be used."
+      ;;
+    v)
+      VERSION=${OPTARG}
+      echo "User specified Mender version '$VERSION'."
       ;;
     :)
       echo "No argument value for option $OPTARG"
@@ -49,6 +50,10 @@ shift $((OPTIND-1))
 if [[ -z $package ]] || [[ -z $_cpu ]]; then
   usage
   exit 0
+fi
+
+if [[ -z $VERSION ]]; then
+  VERSION = "unknown"
 fi
 
 IFS=, read -a cpus <<<"${_cpu}"
@@ -88,7 +93,7 @@ do
 
   go clean $package
 
-  env CGO_ENABLED=1 CC=$CC GOOS=$GOOS GOARCH=$GOARCH CGO_CFLAGS=$CGO_CFLAGS go build -o $output_name $package
+  env CGO_ENABLED=1 CC=$CC GOOS=$GOOS GOARCH=$GOARCH CGO_CFLAGS=$CGO_CFLAGS go build -ldflags "-X main.Version=${VERSION}" -o $output_name $package
 
   if [ $? -ne 0 ]; then
     echo 'An error has occurred! Aborting the script execution...'
@@ -96,4 +101,3 @@ do
   fi
   echo "Build successful."
 done
-

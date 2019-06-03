@@ -13,7 +13,8 @@ Usage: $0 -n <package-name> -p <processor> [-t <toolchain>]
 EOF
 }
 
-while getopts ":n:p:t:v:" o; do  case "${o}" in
+while getopts ":n:p:t:v:" o; do
+  case "${o}" in
     n)
       package=${OPTARG}
       ;;

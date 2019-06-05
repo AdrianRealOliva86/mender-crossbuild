@@ -54,7 +54,7 @@ if [[ -z $package ]] || [[ -z $_cpu ]]; then
 fi
 
 if [[ -z $VERSION ]]; then
-  VERSION = "unknown"
+  VERSION="unknown"
 fi
 
 IFS=, read -a cpus <<<"${_cpu}"
